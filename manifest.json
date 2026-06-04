@@ -1,0 +1,25 @@
+{
+  "name": "Recomp — coaching perso",
+  "short_name": "Recomp",
+  "description": "Coaching force + nutrition, recomposition corporelle, sécurité du dos d'abord.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06100e",
+  "theme_color": "#06100e",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%2306100e'/%3E%3Cpath d='M30 96h24l18 48 24-96 18 66 12-30h36' fill='none' stroke='%2346e6b0' stroke-width='10' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%2306100e'/%3E%3Cpath d='M80 256h64l48 128 64-256 48 176 32-80h96' fill='none' stroke='%2346e6b0' stroke-width='26' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

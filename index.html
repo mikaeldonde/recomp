@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Recomp</title>
+  <meta name="theme-color" content="#06100e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2306100e'/%3E%3Cpath d='M5 16h4l3 8 4-16 3 11 2-5h6' fill='none' stroke='%2346e6b0' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E" />
+
+  <!-- Fonts : Bricolage (display) · Sora (corps) · IBM Plex Mono (data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;600&family=Sora:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="root"></div>
+  <noscript>Cette application nécessite JavaScript.</noscript>
+
+  <!-- 1) Données : plain JS, exécution immédiate (DB puis bibliothèque) -->
+  <script src="db.js"></script>
+  <script src="library.js"></script>
+
+  <!-- 2) React + Babel (CDN) -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+  <!-- 3) Vues (JSX, transpilées dans le navigateur). Ordre important :
+       session.js avant app.js ; app.js monte l'app en dernier. -->
+  <script type="text/babel" data-presets="react" src="session.js"></script>
+  <script type="text/babel" data-presets="react" src="progress.js"></script>
+  <script type="text/babel" data-presets="react" src="nutrition.js"></script>
+  <script type="text/babel" data-presets="react" src="app.js"></script>
+</body>
+</html>
