@@ -37,6 +37,17 @@
     });
   }
 
+  // Appel partagé au Worker : photo OU texte → { label, kcal, protein_g, confidence, note }
+  async function callWorker(workerUrl, payload) {
+    const r = await fetch(workerUrl, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  }
+
   function ScanBlock({ workerUrl, onResult }) {
     const [state, setState] = useState({ loading: false, err: null });
     const onPick = async (e) => {
@@ -46,13 +57,7 @@
       setState({ loading: true, err: null });
       try {
         const image = await fileToB64(file);
-        const r = await fetch(workerUrl, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ image, mediaType: file.type || "image/jpeg" }),
-        });
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        const data = await r.json();
+        const data = await callWorker(workerUrl, { image, mediaType: file.type || "image/jpeg" });
         setState({ loading: false, err: null });
         onResult(data);
       } catch (err) {
@@ -91,14 +96,26 @@
   }
 
   // ---------- Formulaire d'ajout manuel / confirmation de scan ----------
-  function AddForm({ seed, onAdd, onClear }) {
+  function AddForm({ seed, workerUrl, onAdd, onClear }) {
     const [f, setF] = useState(seed || { label: "", kcal: "", protein_g: "" });
     const [fav, setFav] = useState(false);
+    const [est, setEst] = useState({ loading: false, err: null, info: null });
     React.useEffect(() => { if (seed) setF(seed); }, [seed]);
     const ok = f.label && Number(f.kcal) >= 0 && Number(f.protein_g) >= 0;
     const submit = () => {
       onAdd({ label: f.label, kcal: r0(Number(f.kcal)), protein_g: r0(Number(f.protein_g)), source: seed ? "scan" : "manual" }, fav);
-      setF({ label: "", kcal: "", protein_g: "" }); setFav(false); onClear && onClear();
+      setF({ label: "", kcal: "", protein_g: "" }); setFav(false); setEst({ loading: false, err: null, info: null }); onClear && onClear();
+    };
+    const estimate = async () => {
+      if (!f.label) return;
+      setEst({ loading: true, err: null, info: null });
+      try {
+        const d = await callWorker(workerUrl, { text: f.label });
+        setF((cur) => ({ ...cur, kcal: d.kcal ?? cur.kcal, protein_g: d.protein_g ?? cur.protein_g }));
+        setEst({ loading: false, err: null, info: "Estimé" + (d.confidence ? " · confiance " + d.confidence : "") + (d.note ? " — " + d.note : "") });
+      } catch (err) {
+        setEst({ loading: false, err: "Estimation indisponible (" + err.message + "). Saisis les chiffres à la main.", info: null });
+      }
     };
     return (
       <div className="panel" style={seed ? { borderColor: "var(--amber)" } : null}>
@@ -111,6 +128,14 @@
           <label>Repas</label>
           <input type="text" value={f.label} placeholder="ex. Poulet riz"
                  onChange={(e) => setF({ ...f, label: e.target.value })} />
+          {workerUrl && (
+            <button className="btn ghost" style={{ marginTop: 8, padding: "9px 14px" }}
+                    disabled={!f.label || est.loading} onClick={estimate}>
+              {est.loading ? "Estimation…" : "✦ Estimer kcal + protéines depuis le nom"}
+            </button>
+          )}
+          {est.err && <p className="caution small" style={{ marginTop: 6 }}>{est.err}</p>}
+          {est.info && <p className="faint small" style={{ marginTop: 6 }}>{est.info}. Ajuste si besoin.</p>}
         </div>
         <div className="stat-grid" style={{ marginBottom: 10 }}>
           <div className="field" style={{ margin: 0 }}><label>Calories</label>
@@ -208,7 +233,7 @@
           : <div className="rise"><ScanSetup url={data.config.visionWorkerUrl} onSave={setWorker} /></div>}
 
         {/* Formulaire (manuel ou confirmation de scan) */}
-        <div className="rise"><AddForm seed={seed} onAdd={addMeal} onClear={() => setSeed(null)} /></div>
+        <div className="rise"><AddForm seed={seed} workerUrl={data.config.visionWorkerUrl} onAdd={addMeal} onClear={() => setSeed(null)} /></div>
 
         {/* Ajout rapide : favoris + sources protéines */}
         <div className="panel rise">
